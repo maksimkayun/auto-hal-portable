@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Net.Http.Json;
 using System.Text;
+using System.Threading.Tasks;
 using Auto.Data;
 using Auto.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -24,30 +26,96 @@ public class OwnersController : ControllerBase
     [Produces("application/hal+json")]
     public IActionResult Get(int index = 0, int count = 10)
     {
-        var items = _context.ListOwners().Skip(index).Take(count).Select(GetResource);
-        var total = _context.CountOwners();
-        var _links = Paginate("/api/owners", index, count, total);
-        var _actions = new
+        dynamic result;
+        try
         {
-            create = new
+            var items = _context.ListOwners().Skip(index).Take(count).Select(GetResource);
+            var total = _context.CountOwners();
+            var links = Paginate("/api/owners", index, count, total);
+
+            result = new
             {
-                method = "POST",
-                type = "application/json",
-                name = "Create a new owner",
-                href = "/api/addowner"
-            },
-            delete = new
+                links, index, count, total, items
+            };
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            result = new { message = e.Message };
+        }
+
+        return BadRequest(result);
+    }
+
+    [HttpPost]
+    [Produces("application/hal+json")]
+    [Route("{name}")]
+    public IActionResult GetByName(string name)
+    {
+        dynamic result;
+        try
+        {
+            var item = GetResource(_context.FindOwnerByName(name));
+            var total = _context.CountOwners();
+            result = new
             {
-                method = "POST",
-                name = "Delete a owner",
-                href = "/api/owners/{name}"
+                total,
+                item
+            };
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            result = new { message = e.Message };
+        }
+
+        return BadRequest(result);
+    }
+
+    [HttpPost]
+    [Produces("application/hal+json")]
+    [Route("delete/{name}")]
+    public IActionResult Remove(string name)
+    {
+        var owner = _context.FindOwnerByName(name);
+        _context.DeleteOwner(owner);
+        return Ok(owner);
+    }
+    
+    [HttpPost]
+    [Produces("application/hal+json")]
+    [Route("update/{name}")]
+    public IActionResult Update(string name, [FromBody] dynamic owner)
+    {
+        dynamic vehicles = ParseVehicles(owner._links.vehicles?.href);
+
+        var ownerInContext =
+            _context.FindOwnerByName(name);
+        
+        ownerInContext.FirstName = owner.FirstName;
+        ownerInContext.MiddleName = owner.MiddleName;
+        ownerInContext.LastName = owner.LastName;
+        ownerInContext.Email = owner.Email;
+
+        if (vehicles != null)
+        {
+            ownerInContext.Vehicles = new List<Vehicle>();
+            foreach (var e in vehicles.Result.Value)
+            {
+                Vehicle vehicle = _context.FindVehicle((string) e.Registration);
+                ownerInContext.Vehicles.Add(vehicle);
             }
-        };
-        var result = new
-        {
-            _links, _actions, index, count, total, items
-        };
-        return Ok(result);
+        }
+        
+        _context.UpdateOwner(ownerInContext);
+
+        return GetByName(ownerInContext.GetFullName);
+    }
+
+    private Task<IActionResult> ParseVehicles(dynamic href)
+    {
+        var token = ((string) href).Split("/").LastOrDefault();
+        return new VehiclesController(_context).GetGroup(token);
     }
 
     private dynamic GetResource(Owner owner)
@@ -55,13 +123,7 @@ public class OwnersController : ControllerBase
         var pathOwner = "/api/owners/";
         var pathVehicle = "/api/vehicles/";
         var ownerDynamic = owner.ToDynamic();
-        ownerDynamic._links = new
-        {
-            self = new
-            {
-                href = $"{pathOwner}{owner.GetFullName}"
-            }
-        };
+        
         if (owner.Vehicles?.Count > 0)
         {
             ownerDynamic._links = new
@@ -88,6 +150,18 @@ public class OwnersController : ControllerBase
             };
         }
 
+        ownerDynamic.actions = new
+        {
+            update = new
+            {
+                href = $"/api/owners/update",
+                accept = "application/json"
+            },
+            delete = new
+            {
+                href = $"/api/owners/delete/{owner.GetFullName}"
+            }
+        };
         return ownerDynamic;
     }
 

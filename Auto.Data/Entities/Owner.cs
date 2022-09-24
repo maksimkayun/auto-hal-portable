@@ -24,5 +24,5 @@ public class Owner
     public ICollection<Vehicle>? Vehicles { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
-    public string GetFullName => $"{FirstName}_{MiddleName}_{LastName}";
+    public string GetFullName => $"{FirstName}&{MiddleName}&{LastName}";
 }
