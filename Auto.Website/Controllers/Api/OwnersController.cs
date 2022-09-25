@@ -114,8 +114,17 @@ public class OwnersController : ControllerBase
 
     private Task<IActionResult> ParseVehicles(dynamic href)
     {
-        var token = ((string) href).Split("/").LastOrDefault();
-        return new VehiclesController(_context).GetGroup(token);
+        try
+        {
+            var token = ((string) href).Split("/").LastOrDefault();
+            // _context.ListVehicles().Where(e => token.Contains(e.Registration)).Select(e => e);
+            return new VehiclesController(_context).GetGroup(token);
+        }
+        catch (Exception e)
+        {
+        }
+
+        return null;
     }
 
     private dynamic GetResource(Owner owner)

@@ -43,7 +43,7 @@ namespace Auto.Data
                     tokens[4].Contains(e.Key)).Select(e => e.Value).ToList();
                 owner.Vehicles = vehicles;
                 
-                owners[$"{owner.FirstName}&{owner.MiddleName}&{owner.LastName}"] = owner;
+                owners[owner.GetFullName] = owner;
             }
         }
 
