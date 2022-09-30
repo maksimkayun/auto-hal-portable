@@ -1,21 +1,17 @@
-﻿#nullable enable
-using System.Collections;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿namespace Auto.Website.Models;
 
-namespace Auto.Data.Entities;
-
-public class Owner
+public class OwnderDto
 {
-    public Owner()
+    public OwnderDto()
     {
     }
-    public Owner(string firstName, string middleName, string? lastName, string email)
+    public OwnderDto(string firstName, string middleName, string? lastName, string email, string regCodeVehicle = null)
     {
         FirstName = firstName;
         MiddleName = middleName;
         LastName = lastName;
         Email = email;
+        RegCodeVehicle = regCodeVehicle;
     }
     public string FirstName { get; set; }
     public string MiddleName { get; set; }
@@ -23,8 +19,7 @@ public class Owner
     
     public string Email { get; set; }
     
-    [Newtonsoft.Json.JsonIgnore] 
-    public Vehicle? Vehicle { get; set; }
+    public string? RegCodeVehicle { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
     public string GetFullName => $"{FirstName}&{MiddleName}&{LastName}";

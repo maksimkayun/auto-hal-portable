@@ -39,9 +39,9 @@ namespace Auto.Data
                 var tokens = line.Split(";");
                 var owner = new Owner(tokens[0], tokens[1], tokens[2], tokens[3]);
                 
-                ICollection<Vehicle> vehicles = this.vehicles.Where(e => 
-                    tokens[4].Contains(e.Key)).Select(e => e.Value).ToList();
-                owner.Vehicles = vehicles;
+                var vehicle = this.vehicles
+                    .FirstOrDefault(e => tokens[4] == e.Key).Value;
+                owner.Vehicle = vehicle;
                 
                 owners[owner.GetFullName] = owner;
             }
@@ -134,12 +134,23 @@ namespace Auto.Data
 
         public IEnumerable<Owner> ListOwners() => owners.Values;
 
-        public Vehicle FindVehicle(string registration) => vehicles.GetValueOrDefault(registration);
+        public Vehicle FindVehicle(string registration)
+        {
+            var vehicle = vehicles.FirstOrDefault(e => e.Key == registration).Value;
+            if (vehicle == default)
+            {
+                throw new Exception($"Авто с номером {registration} не найдено");
+            }
+
+            return vehicle;
+        } 
 
         public Model FindModel(string code) => models.GetValueOrDefault(code);
 
         public Manufacturer FindManufacturer(string code) => manufacturers.GetValueOrDefault(code);
-        public Owner FindOwnerByName(string fullName) => owners.GetValueOrDefault(fullName);
+
+        public Owner FindOwnerByName(string fullName) =>
+            owners.FirstOrDefault(e => (e.Value as Owner).GetFullName == fullName).Value;
 
         public Owner FindOwnerByEmail(string email) => 
             owners.FirstOrDefault(e => e.Value.Email == email).Value;
@@ -168,9 +179,13 @@ namespace Auto.Data
             owners.Add(owner.GetFullName, owner);
         }
 
-        public void UpdateOwner(Owner owner)
+        public void UpdateOwner(Owner owner, string name)
         {
             owners[owner.GetFullName] = owner;
+            if (name != owner.GetFullName)
+            {
+                owners.Remove(name);
+            }
         }
 
         public void DeleteOwner(Owner owner)

@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 using Auto.Data;
 using Auto.Data.Entities;
+using Auto.Website.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auto.Website.Controllers.Api;
@@ -41,7 +39,7 @@ public class OwnersController : ControllerBase
         }
         catch (Exception e)
         {
-            result = new { message = e.Message };
+            result = new {message = e.Message};
         }
 
         return BadRequest(result);
@@ -55,7 +53,11 @@ public class OwnersController : ControllerBase
         dynamic result;
         try
         {
-            var item = GetResource(_context.FindOwnerByName(name));
+            var item = GetResource(_context.FindOwnerByName(name), name);
+            if (item == null)
+            {
+                throw new Exception("Владелец с таким именем не найден");
+            }
             var total = _context.CountOwners();
             result = new
             {
@@ -66,7 +68,7 @@ public class OwnersController : ControllerBase
         }
         catch (Exception e)
         {
-            result = new { message = e.Message };
+            result = new {message = e.Message};
         }
 
         return BadRequest(result);
@@ -81,84 +83,103 @@ public class OwnersController : ControllerBase
         _context.DeleteOwner(owner);
         return Ok(owner);
     }
-    
+
     [HttpPost]
     [Produces("application/hal+json")]
     [Route("update/{name}")]
-    public IActionResult Update(string name, [FromBody] dynamic owner)
+    public IActionResult Update(string name, [FromBody] OwnderDto owner)
     {
-        dynamic vehicles = ParseVehicles(owner._links.vehicles?.href);
-
-        var ownerInContext =
-            _context.FindOwnerByName(name);
-        
-        ownerInContext.FirstName = owner.FirstName;
-        ownerInContext.MiddleName = owner.MiddleName;
-        ownerInContext.LastName = owner.LastName;
-        ownerInContext.Email = owner.Email;
-
-        if (vehicles != null)
-        {
-            ownerInContext.Vehicles = new List<Vehicle>();
-            foreach (var e in vehicles.Result.Value)
-            {
-                Vehicle vehicle = _context.FindVehicle((string) e.Registration);
-                ownerInContext.Vehicles.Add(vehicle);
-            }
-        }
-        
-        _context.UpdateOwner(ownerInContext);
-
-        return GetByName(ownerInContext.GetFullName);
-    }
-
-    private Task<IActionResult> ParseVehicles(dynamic href)
-    {
+        dynamic result;
         try
         {
-            var token = ((string) href).Split("/").LastOrDefault();
-            // _context.ListVehicles().Where(e => token.Contains(e.Registration)).Select(e => e);
-            return new VehiclesController(_context).GetGroup(token);
+            Vehicle vehicle = null;
+            if (!string.IsNullOrEmpty(owner.RegCodeVehicle))
+            {
+                vehicle = _context.FindVehicle(owner.RegCodeVehicle);
+            }
+
+            var ownerInContext =
+                _context.FindOwnerByName(name);
+            if (ownerInContext == null)
+            {
+                Owner newOwner = CreateOwner(owner, vehicle);
+                result = new
+                {
+                    message = "Создан новый владелец",
+                    owner = GetResource(newOwner)
+                };
+                return Ok(result);
+            }
+
+            var oldName = ownerInContext.GetFullName;
+        
+            ownerInContext.FirstName = owner.FirstName;
+            ownerInContext.MiddleName = owner.MiddleName;
+            ownerInContext.LastName = owner.LastName;
+            ownerInContext.Email = owner.Email;
+            ownerInContext.Vehicle = vehicle;
+
+            _context.UpdateOwner(ownerInContext, oldName);
+
+            return GetByName(ownerInContext.GetFullName);
         }
         catch (Exception e)
         {
+            result = new {message = e.Message};
         }
 
-        return null;
+        return BadRequest(result);
     }
 
+    private Vehicle ParseVehicle(dynamic href)
+    {
+        var token = ((string) href).Split("/").LastOrDefault();
+        return token != default ? _context.FindVehicle(token) : null;
+    }
+    
     private dynamic GetResource(Owner owner)
     {
+        return GetResource(owner, null);
+    }
+
+    private Owner CreateOwner(OwnderDto owner, Vehicle vehicle)
+    {
+        Owner newOwner = new Owner
+        {
+            FirstName = owner.FirstName,
+            MiddleName = owner.MiddleName,
+            LastName = owner.LastName,
+            Email = owner.Email,
+        };
+        
+        newOwner.Vehicle = vehicle;
+
+        _context.CreateOwner(newOwner);
+        return newOwner;
+    }
+    
+    private dynamic GetResource(Owner owner, string name = null)
+    {
+        if (name != null && owner.GetFullName != name)
+        {
+            return null;
+        }
         var pathOwner = "/api/owners/";
         var pathVehicle = "/api/vehicles/";
         var ownerDynamic = owner.ToDynamic();
         
-        if (owner.Vehicles?.Count > 0)
+        dynamic links = new ExpandoObject();
+        links.self = new
         {
-            ownerDynamic._links = new
+            href = $"{pathOwner}{owner.GetFullName}"
+        };
+        if (owner.Vehicle != null)
+            links.vehicle = new
             {
-                self = new
-                {
-                    href = $"{pathOwner}{owner.GetFullName}"
-                },
-                vehicles = new
-                {
-                    // /api/vehicles/group/AA07AMM&AAC792H&AAY452D&AB01MFL
-                    href = $"{pathVehicle}group/{owner.Vehicles?.Select(e => e.Registration).ToQueryString()}"
-                }
+                href = $"{pathVehicle}{owner.Vehicle.Registration}"
             };
-        }
-        else
-        {
-            ownerDynamic._links = new
-            {
-                self = new
-                {
-                    href = $"{pathOwner}{owner.GetFullName}"
-                }
-            };
-        }
-
+        
+        ownerDynamic._links = links;
         ownerDynamic.actions = new
         {
             update = new
