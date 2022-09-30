@@ -7,6 +7,12 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
+using Auto.Website.GraphQL.Schemas;
+using GraphQL;
+using GraphQL.Server;
+using GraphQL.Types;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 namespace Auto.Website {
@@ -22,7 +28,11 @@ namespace Auto.Website {
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllersWithViews().AddNewtonsoftJson();
             services.AddSingleton<IAutoDatabase, AutoCsvFileDatabase>();
-
+            
+            services.AddScoped<ISchema,AutoSchema>();
+            services.AddScoped<ISchema,AutoSchema>();
+            services.AddGraphQL(options => { options.EnableMetrics = true; }).AddSystemTextJson();
+            
             services.AddSwaggerGen(
                 config => {
                     config.SwaggerDoc("v1", new OpenApiInfo() {
@@ -38,6 +48,8 @@ namespace Auto.Website {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.UseRequestResponseLogging();
+                app.UseGraphQLAltair();
+
             } else {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
@@ -49,6 +61,7 @@ namespace Auto.Website {
 
             app.UseSwagger();
             app.UseSwaggerUI();
+            app.UseGraphQL<ISchema>();
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllerRoute(
