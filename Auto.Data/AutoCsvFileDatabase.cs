@@ -36,7 +36,7 @@ namespace Auto.Data
             var filePath = ResolveCsvFilePath(filename);
             foreach (var line in File.ReadAllLines(filePath))
             {
-                var tokens = line.Split(";");
+                var tokens = line.Split(",");
                 var owner = new Owner(tokens[0], tokens[1], tokens[2], tokens[3]);
                 
                 var vehicle = this.vehicles

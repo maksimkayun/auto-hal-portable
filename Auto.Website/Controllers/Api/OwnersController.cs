@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Threading.Tasks;
 using Auto.Data;
 using Auto.Data.Entities;
 using Auto.Website.Models;
@@ -22,7 +23,7 @@ public class OwnersController : ControllerBase
 
     [HttpPost]
     [Produces("application/hal+json")]
-    public IActionResult Get(int index = 0, int count = 10)
+    public async Task<IActionResult> Get(int index = 0, int count = 10)
     {
         dynamic result;
         try
@@ -48,7 +49,7 @@ public class OwnersController : ControllerBase
     [HttpPost]
     [Produces("application/hal+json")]
     [Route("{name}")]
-    public IActionResult GetByName(string name)
+    public async Task<IActionResult> GetByName(string name)
     {
         dynamic result;
         try
@@ -77,7 +78,7 @@ public class OwnersController : ControllerBase
     [HttpPost]
     [Produces("application/hal+json")]
     [Route("delete/{name}")]
-    public IActionResult Remove(string name)
+    public async Task<IActionResult> Remove(string name)
     {
         var owner = _context.FindOwnerByName(name);
         _context.DeleteOwner(owner);
@@ -87,7 +88,7 @@ public class OwnersController : ControllerBase
     [HttpPost]
     [Produces("application/hal+json")]
     [Route("update/{name}")]
-    public IActionResult Update(string name, [FromBody] OwnderDto owner)
+    public async Task<IActionResult> Update(string name, [FromBody] OwnderDto owner)
     {
         dynamic result;
         try
@@ -121,7 +122,7 @@ public class OwnersController : ControllerBase
 
             _context.UpdateOwner(ownerInContext, oldName);
 
-            return GetByName(ownerInContext.GetFullName);
+            return await GetByName(ownerInContext.GetFullName);
         }
         catch (Exception e)
         {
