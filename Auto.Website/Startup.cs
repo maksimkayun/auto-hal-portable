@@ -29,8 +29,7 @@ namespace Auto.Website {
             services.AddControllersWithViews().AddNewtonsoftJson();
             services.AddSingleton<IAutoDatabase, AutoCsvFileDatabase>();
             
-            services.AddScoped<ISchema,AutoSchema>();
-            services.AddScoped<ISchema,AutoSchema>();
+            services.AddSingleton<ISchema,AutoSchema>();
             services.AddGraphQL(options => { options.EnableMetrics = true; }).AddSystemTextJson();
             
             services.AddSwaggerGen(

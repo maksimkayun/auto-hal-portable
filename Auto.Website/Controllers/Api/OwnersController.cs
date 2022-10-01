@@ -74,6 +74,42 @@ public class OwnersController : ControllerBase
 
         return BadRequest(result);
     }
+    
+    [HttpPost]
+    [Produces("application/hal+json")]
+    [Route("add")]
+    public async Task<IActionResult> Add([FromBody] OwnderDto ownderDto)
+    {
+        dynamic result;
+        try
+        {
+            Vehicle vehicle = null;
+            if (!string.IsNullOrEmpty(ownderDto.RegCodeVehicle))
+            {
+                vehicle = _context.FindVehicle(ownderDto.RegCodeVehicle);
+            }
+            
+            var ownerInContext = _context.FindOwnerByName(ownderDto.GetFullName);
+            if (ownerInContext == null)
+            {
+                Owner newOwner = CreateOwner(ownderDto, vehicle);
+                result = new
+                {
+                    message = "Создан новый владелец",
+                    owner = GetResource(newOwner)
+                };
+                return Ok(result);
+            }
+            result = new { message = "Владелец с таким именем уже существует", owner = GetResource(ownerInContext) };
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return BadRequest(result);
+    }
 
     [HttpPost]
     [Produces("application/hal+json")]
@@ -103,13 +139,11 @@ public class OwnersController : ControllerBase
                 _context.FindOwnerByName(name);
             if (ownerInContext == null)
             {
-                Owner newOwner = CreateOwner(owner, vehicle);
                 result = new
                 {
-                    message = "Создан новый владелец",
-                    owner = GetResource(newOwner)
+                    message = "Такого владельца нет. Воспользуйтесь методом add",
                 };
-                return Ok(result);
+                return BadRequest(result);
             }
 
             var oldName = ownerInContext.GetFullName;
