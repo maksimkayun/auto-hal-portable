@@ -10,7 +10,7 @@ public class Owner
     public Owner()
     {
     }
-    public Owner(string firstName, string middleName, string? lastName, string email)
+    public Owner(string firstName, string middleName, string lastName, string email)
     {
         FirstName = firstName;
         MiddleName = middleName;
@@ -19,7 +19,7 @@ public class Owner
     }
     public string FirstName { get; set; }
     public string MiddleName { get; set; }
-    public string? LastName { get; set; }
+    public string LastName { get; set; }
     
     public string Email { get; set; }
     

@@ -8,5 +8,6 @@ public class AutoSchema: Schema {
     public AutoSchema(IAutoDatabase db)
     {
         Query = new OwnerQuery(db);
+        Mutation = new OwnerMutation(db);
     }
 }
