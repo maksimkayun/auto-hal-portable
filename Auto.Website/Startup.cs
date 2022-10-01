@@ -30,7 +30,7 @@ namespace Auto.Website {
             services.AddSingleton<IAutoDatabase, AutoCsvFileDatabase>();
             
             services.AddSingleton<ISchema,AutoSchema>();
-            services.AddGraphQL(options => { options.EnableMetrics = true; }).AddSystemTextJson();
+            services.AddGraphQL(options => { options.EnableMetrics = false; }).AddSystemTextJson();
             
             services.AddSwaggerGen(
                 config => {

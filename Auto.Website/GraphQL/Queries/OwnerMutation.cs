@@ -26,21 +26,29 @@ public class OwnerMutation : ObjectGraphType
             ),
             resolve: tContext =>
             {
-                var f_name = tContext.GetArgument<string>("firstName");
-                var m_name = tContext.GetArgument<string>("middleName");
-                var l_name = tContext.GetArgument<string>("lastName");
-                var email = tContext.GetArgument<string>("email");
-                var vehicle = tContext.GetArgument<string>("vehicle");
-
-                var newOwner = new Owner(f_name, m_name, l_name, email);
-
-                if (!string.IsNullOrEmpty(vehicle))
+                try
                 {
-                    newOwner.Vehicle = _context.FindVehicle(vehicle);
-                }
+                    var f_name = tContext.GetArgument<string>("firstName");
+                    var m_name = tContext.GetArgument<string>("middleName");
+                    var l_name = tContext.GetArgument<string>("lastName");
+                    var email = tContext.GetArgument<string>("email");
+                    var vehicle = tContext.GetArgument<string>("vehicle");
 
-                _context.CreateOwner(newOwner);
-                return newOwner;
+                    var newOwner = new Owner(f_name, m_name, l_name, email);
+
+                    if (!string.IsNullOrEmpty(vehicle))
+                    {
+                        newOwner.Vehicle = _context.FindVehicle(vehicle);
+                    }
+
+                    _context.CreateOwner(newOwner);
+                    return newOwner;
+                }
+                catch (Exception e)
+                {
+                    tContext.Errors.Add(new ExecutionError(e.Message));
+                    throw;
+                }
             }
         );
         
@@ -54,37 +62,45 @@ public class OwnerMutation : ObjectGraphType
                 new QueryArgument<StringGraphType> {Name = "vehicle"}
             ),
             resolve: tContext =>
-            { 
-                var oldfullname = tContext.GetArgument<string>("oldfullname");
-                var f_name = tContext.GetArgument<string>("firstName");
-                var m_name = tContext.GetArgument<string>("middleName");
-                var l_name = tContext.GetArgument<string>("lastName");
-                var email = tContext.GetArgument<string>("email");
-                var vehicle = tContext.GetArgument<string>("vehicle");
+            {
+                try
+                {
+                    var oldfullname = tContext.GetArgument<string>("oldfullname");
+                    var f_name = tContext.GetArgument<string>("firstName");
+                    var m_name = tContext.GetArgument<string>("middleName");
+                    var l_name = tContext.GetArgument<string>("lastName");
+                    var email = tContext.GetArgument<string>("email");
+                    var vehicle = tContext.GetArgument<string>("vehicle");
 
                 
-                var newOwner = new Owner(f_name, m_name, l_name, email);
+                    var newOwner = new Owner(f_name, m_name, l_name, email);
 
-                if (vehicle != null)
-                {
-                    if (vehicle == "")
+                    if (vehicle != null)
                     {
-                        newOwner.Vehicle = null;
+                        if (vehicle == "")
+                        {
+                            newOwner.Vehicle = null;
+                        }
+                        else
+                        {
+                            newOwner.Vehicle = _context.FindVehicle(vehicle);;
+                        }
                     }
-                    else
+
+                    var ownerInContext = _context.FindOwnerByName(oldfullname);
+                    if (ownerInContext == null)
                     {
-                        newOwner.Vehicle = _context.FindVehicle(vehicle);;
+                        throw new KeyNotFoundException("Владелец не найден");
                     }
-                }
 
-                var ownerInContext = _context.FindOwnerByName(oldfullname);
-                if (ownerInContext == null)
+                    _context.UpdateOwner(newOwner, oldfullname);
+                    return newOwner;
+                }
+                catch (Exception e)
                 {
-                    throw new KeyNotFoundException("Владелец не найден");
+                    tContext.Errors.Add(new ExecutionError(e.Message));
+                    throw;
                 }
-
-                _context.UpdateOwner(newOwner, oldfullname);
-                return newOwner;
             }
         );
         
