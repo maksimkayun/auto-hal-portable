@@ -172,11 +172,6 @@ public class OwnersController : ControllerBase
         return token != default ? _context.FindVehicle(token) : null;
     }
     
-    private dynamic GetResource(Owner owner)
-    {
-        return GetResource(owner, null);
-    }
-
     private Owner CreateOwner(OwnderDto owner, Vehicle vehicle)
     {
         Owner newOwner = new Owner
@@ -193,6 +188,11 @@ public class OwnersController : ControllerBase
         return newOwner;
     }
     
+    private dynamic GetResource(Owner owner)
+    {
+        return GetResource(owner, null);
+    }
+
     private dynamic GetResource(Owner owner, string name = null)
     {
         if (name != null && owner.GetFullName != name)
