@@ -1,11 +1,11 @@
 ﻿namespace Auto.Website.Models;
 
-public class OwnderDto
+public class OwnerDto
 {
-    public OwnderDto()
+    public OwnerDto()
     {
     }
-    public OwnderDto(string firstName, string middleName, string? lastName, string email, string regCodeVehicle = null)
+    public OwnerDto(string firstName, string middleName, string? lastName, string email, string regCodeVehicle = null)
     {
         FirstName = firstName;
         MiddleName = middleName;

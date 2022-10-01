@@ -78,7 +78,7 @@ public class OwnersController : ControllerBase
     [HttpPost]
     [Produces("application/hal+json")]
     [Route("add")]
-    public async Task<IActionResult> Add([FromBody] OwnderDto ownderDto)
+    public async Task<IActionResult> Add([FromBody] OwnerDto ownderDto)
     {
         dynamic result;
         try
@@ -124,7 +124,7 @@ public class OwnersController : ControllerBase
     [HttpPost]
     [Produces("application/hal+json")]
     [Route("update/{name}")]
-    public async Task<IActionResult> Update(string name, [FromBody] OwnderDto owner)
+    public async Task<IActionResult> Update(string name, [FromBody] OwnerDto owner)
     {
         dynamic result;
         try
@@ -172,7 +172,7 @@ public class OwnersController : ControllerBase
         return token != default ? _context.FindVehicle(token) : null;
     }
     
-    private Owner CreateOwner(OwnderDto owner, Vehicle vehicle)
+    private Owner CreateOwner(OwnerDto owner, Vehicle vehicle)
     {
         Owner newOwner = new Owner
         {
