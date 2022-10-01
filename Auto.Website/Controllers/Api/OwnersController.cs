@@ -78,21 +78,21 @@ public class OwnersController : ControllerBase
     [HttpPost]
     [Produces("application/hal+json")]
     [Route("add")]
-    public async Task<IActionResult> Add([FromBody] OwnerDto ownderDto)
+    public async Task<IActionResult> Add([FromBody] OwnerDto ownerDto)
     {
         dynamic result;
         try
         {
             Vehicle vehicle = null;
-            if (!string.IsNullOrEmpty(ownderDto.RegCodeVehicle))
+            if (!string.IsNullOrEmpty(ownerDto.RegCodeVehicle))
             {
-                vehicle = _context.FindVehicle(ownderDto.RegCodeVehicle);
+                vehicle = _context.FindVehicle(ownerDto.RegCodeVehicle);
             }
             
-            var ownerInContext = _context.FindOwnerByName(ownderDto.GetFullName);
+            var ownerInContext = _context.FindOwnerByName(ownerDto.GetFullName);
             if (ownerInContext == null)
             {
-                Owner newOwner = CreateOwner(ownderDto, vehicle);
+                Owner newOwner = CreateOwner(ownerDto, vehicle);
                 result = new
                 {
                     message = "Создан новый владелец",
@@ -104,8 +104,7 @@ public class OwnersController : ControllerBase
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            result = new {message = e.Message};
         }
 
         return BadRequest(result);
