@@ -9,31 +9,36 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 
-namespace Auto.Website.Controllers.Api {
+namespace Auto.Website.Controllers.Api
+{
     [Route("api/[controller]")]
     [ApiController]
-    public class ModelsController : ControllerBase {
+    public class ModelsController : ControllerBase
+    {
         private readonly IAutoDatabase db;
 
-        public ModelsController(IAutoDatabase db) {
+        public ModelsController(IAutoDatabase db)
+        {
             this.db = db;
         }
 
         [HttpGet]
-        public IEnumerable<Model> Get() {
+        public IEnumerable<Model> Get()
+        {
             return db.ListModels();
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(string id) {
+        public IActionResult Get(string id)
+        {
             var vehicleModel = db.FindModel(id);
             if (vehicleModel == default) return NotFound();
             return Ok(vehicleModel);
-
         }
 
-        public static string ParseModelId(dynamic href) {
-            var tokens = ((string)href).Split("/");
+        public static string ParseModelId(dynamic href)
+        {
+            var tokens = ((string) href).Split("/");
             return tokens.Last();
         }
     }

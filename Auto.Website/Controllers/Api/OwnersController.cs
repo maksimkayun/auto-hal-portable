@@ -59,6 +59,7 @@ public class OwnersController : ControllerBase
             {
                 throw new Exception("Владелец с таким именем не найден");
             }
+
             var total = _context.CountOwners();
             result = new
             {
@@ -74,7 +75,7 @@ public class OwnersController : ControllerBase
 
         return BadRequest(result);
     }
-    
+
     [HttpPost]
     [Produces("application/hal+json")]
     [Route("add")]
@@ -88,7 +89,7 @@ public class OwnersController : ControllerBase
             {
                 vehicle = _context.FindVehicle(ownerDto.RegCodeVehicle);
             }
-            
+
             var ownerInContext = _context.FindOwnerByName(ownerDto.GetFullName);
             if (ownerInContext == null)
             {
@@ -100,7 +101,8 @@ public class OwnersController : ControllerBase
                 };
                 return Ok(result);
             }
-            result = new { message = "Владелец с таким именем уже существует", owner = GetResource(ownerInContext) };
+
+            result = new {message = "Владелец с таким именем уже существует", owner = GetResource(ownerInContext)};
         }
         catch (Exception e)
         {
@@ -146,7 +148,7 @@ public class OwnersController : ControllerBase
             }
 
             var oldName = ownerInContext.GetFullName;
-        
+
             ownerInContext.FirstName = owner.FirstName;
             ownerInContext.MiddleName = owner.MiddleName;
             ownerInContext.LastName = owner.LastName;
@@ -170,7 +172,7 @@ public class OwnersController : ControllerBase
         var token = ((string) href).Split("/").LastOrDefault();
         return token != default ? _context.FindVehicle(token) : null;
     }
-    
+
     private Owner CreateOwner(OwnerDto owner, Vehicle vehicle)
     {
         Owner newOwner = new Owner
@@ -180,13 +182,13 @@ public class OwnersController : ControllerBase
             LastName = owner.LastName,
             Email = owner.Email,
         };
-        
+
         newOwner.Vehicle = vehicle;
 
         _context.CreateOwner(newOwner);
         return newOwner;
     }
-    
+
     private dynamic GetResource(Owner owner)
     {
         return GetResource(owner, null);
@@ -198,10 +200,11 @@ public class OwnersController : ControllerBase
         {
             return null;
         }
+
         var pathOwner = "/api/owners/";
         var pathVehicle = "/api/vehicles/";
         var ownerDynamic = owner.ToDynamic();
-        
+
         dynamic links = new ExpandoObject();
         links.self = new
         {
@@ -212,7 +215,7 @@ public class OwnersController : ControllerBase
             {
                 href = $"{pathVehicle}{owner.Vehicle.Registration}"
             };
-        
+
         ownerDynamic._links = links;
         ownerDynamic.actions = new
         {
