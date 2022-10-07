@@ -48,16 +48,16 @@ public class OwnersController : ControllerBase
 
     [HttpPost]
     [Produces("application/hal+json")]
-    [Route("{name}")]
-    public async Task<IActionResult> GetByName(string name)
+    [Route("{email}")]
+    public async Task<IActionResult> GetByEmail(string email)
     {
         dynamic result;
         try
         {
-            var item = GetResource(_context.FindOwnerByName(name), name);
+            var item = GetResource(_context.FindOwnerByEmail(email), email);
             if (item == null)
             {
-                throw new Exception("Владелец с таким именем не найден");
+                throw new Exception("Владелец с такой почтой не найден");
             }
 
             var total = _context.CountOwners();
@@ -90,7 +90,7 @@ public class OwnersController : ControllerBase
                 vehicle = _context.FindVehicle(ownerDto.RegCodeVehicle);
             }
 
-            var ownerInContext = _context.FindOwnerByName(ownerDto.GetFullName);
+            var ownerInContext = _context.FindOwnerByEmail(ownerDto.Email);
             if (ownerInContext == null)
             {
                 Owner newOwner = CreateOwner(ownerDto, vehicle);
@@ -102,7 +102,7 @@ public class OwnersController : ControllerBase
                 return Ok(result);
             }
 
-            result = new {message = "Владелец с таким именем уже существует", owner = GetResource(ownerInContext)};
+            result = new {message = "Владелец с такой почтой уже существует", owner = GetResource(ownerInContext)};
         }
         catch (Exception e)
         {
@@ -114,18 +114,18 @@ public class OwnersController : ControllerBase
 
     [HttpPost]
     [Produces("application/hal+json")]
-    [Route("delete/{name}")]
-    public async Task<IActionResult> Remove(string name)
+    [Route("delete/{email}")]
+    public async Task<IActionResult> Remove(string email)
     {
-        var owner = _context.FindOwnerByName(name);
+        var owner = _context.FindOwnerByEmail(email);
         _context.DeleteOwner(owner);
         return Ok(owner);
     }
 
     [HttpPost]
     [Produces("application/hal+json")]
-    [Route("update/{name}")]
-    public async Task<IActionResult> Update(string name, [FromBody] OwnerDto owner)
+    [Route("update/{email}")]
+    public async Task<IActionResult> Update(string email, [FromBody] OwnerDto owner)
     {
         dynamic result;
         try
@@ -137,7 +137,7 @@ public class OwnersController : ControllerBase
             }
 
             var ownerInContext =
-                _context.FindOwnerByName(name);
+                _context.FindOwnerByEmail(email);
             if (ownerInContext == null)
             {
                 result = new
@@ -147,7 +147,7 @@ public class OwnersController : ControllerBase
                 return BadRequest(result);
             }
 
-            var oldName = ownerInContext.GetFullName;
+            var oldEmail = ownerInContext.Email;
 
             ownerInContext.FirstName = owner.FirstName;
             ownerInContext.MiddleName = owner.MiddleName;
@@ -155,9 +155,9 @@ public class OwnersController : ControllerBase
             ownerInContext.Email = owner.Email;
             ownerInContext.Vehicle = vehicle;
 
-            _context.UpdateOwner(ownerInContext, oldName);
+            _context.UpdateOwner(ownerInContext, oldEmail);
 
-            return await GetByName(ownerInContext.GetFullName);
+            return await GetByEmail(ownerInContext.Email);
         }
         catch (Exception e)
         {
@@ -165,12 +165,6 @@ public class OwnersController : ControllerBase
         }
 
         return BadRequest(result);
-    }
-
-    private Vehicle ParseVehicle(dynamic href)
-    {
-        var token = ((string) href).Split("/").LastOrDefault();
-        return token != default ? _context.FindVehicle(token) : null;
     }
 
     private Owner CreateOwner(OwnerDto owner, Vehicle vehicle)
@@ -194,9 +188,9 @@ public class OwnersController : ControllerBase
         return GetResource(owner, null);
     }
 
-    private dynamic GetResource(Owner owner, string name = null)
+    private dynamic GetResource(Owner owner, string email = null)
     {
-        if (name != null && owner.GetFullName != name)
+        if (email != null && owner.Email != email)
         {
             return null;
         }
@@ -208,7 +202,7 @@ public class OwnersController : ControllerBase
         dynamic links = new ExpandoObject();
         links.self = new
         {
-            href = $"{pathOwner}{owner.GetFullName}"
+            href = $"{pathOwner}{owner.Email}"
         };
         if (owner.Vehicle != null)
             links.vehicle = new
@@ -221,12 +215,11 @@ public class OwnersController : ControllerBase
         {
             update = new
             {
-                href = $"/api/owners/update",
-                accept = "application/json"
+                href = $"/api/owners/update"
             },
             delete = new
             {
-                href = $"/api/owners/delete/{owner.GetFullName}"
+                href = $"/api/owners/delete/{owner.Email}"
             }
         };
         return ownerDynamic;

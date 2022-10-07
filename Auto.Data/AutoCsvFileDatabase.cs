@@ -43,7 +43,7 @@ namespace Auto.Data
                     .FirstOrDefault(e => tokens[4] == e.Key).Value;
                 owner.Vehicle = vehicle;
                 
-                owners[owner.GetFullName] = owner;
+                owners[owner.Email] = owner;
             }
         }
 
@@ -153,7 +153,7 @@ namespace Auto.Data
             owners.FirstOrDefault(e => (e.Value as Owner).GetFullName == fullName).Value;
 
         public Owner FindOwnerByEmail(string email) => 
-            owners.FirstOrDefault(e => e.Value.Email == email).Value;
+            owners.FirstOrDefault(e => e.Key == email).Value;
 
         public void CreateVehicle(Vehicle vehicle)
         {
@@ -176,21 +176,21 @@ namespace Auto.Data
 
         public void CreateOwner(Owner owner)
         {
-            owners.Add(owner.GetFullName, owner);
+            owners.Add(owner.Email, owner);
         }
 
-        public void UpdateOwner(Owner owner, string name)
+        public void UpdateOwner(Owner owner, string oldKey)
         {
-            owners[owner.GetFullName] = owner;
-            if (name != owner.GetFullName)
+            owners[owner.Email] = owner;
+            if (oldKey != owner.Email)
             {
-                owners.Remove(name);
+                owners.Remove(oldKey);
             }
         }
 
         public void DeleteOwner(Owner owner)
         {
-            owners.Remove(owner.GetFullName);
+            owners.Remove(owner.Email);
         }
     }
 }

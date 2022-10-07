@@ -24,7 +24,7 @@ namespace Auto.Data {
 		public void DeleteVehicle(Vehicle vehicle);
 		
 		public void CreateOwner(Owner owner);
-		public void UpdateOwner(Owner owner, string name);
+		public void UpdateOwner(Owner owner, string oldKey);
 		public void DeleteOwner(Owner owner);
 	}
 }
