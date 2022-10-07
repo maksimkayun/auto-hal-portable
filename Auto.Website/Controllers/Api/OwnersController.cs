@@ -5,7 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Auto.Data;
 using Auto.Data.Entities;
+using Auto.Messages;
 using Auto.Website.Models;
+using EasyNetQ;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auto.Website.Controllers.Api;
@@ -15,10 +17,12 @@ namespace Auto.Website.Controllers.Api;
 public class OwnersController : ControllerBase
 {
     private readonly IAutoDatabase _context;
+    private readonly IBus _bus;
 
-    public OwnersController(IAutoDatabase context)
+    public OwnersController(IAutoDatabase context, IBus bus)
     {
         _context = context;
+        _bus = bus;
     }
 
     [HttpPost]
@@ -99,6 +103,7 @@ public class OwnersController : ControllerBase
                     message = "Создан новый владелец",
                     owner = GetResource(newOwner)
                 };
+                PublishNewOwnerMessage(newOwner);
                 return Ok(result);
             }
 
@@ -153,6 +158,12 @@ public class OwnersController : ControllerBase
             ownerInContext.MiddleName = owner.MiddleName;
             ownerInContext.LastName = owner.LastName;
             ownerInContext.Email = owner.Email;
+
+            if (ownerInContext.Vehicle != vehicle)
+            {
+                PublishNewVehicleOfOwnerMessage(ownerInContext.Email,
+                    vehicle?.Registration, ownerInContext.Vehicle?.Registration);
+            }
             ownerInContext.Vehicle = vehicle;
 
             _context.UpdateOwner(ownerInContext, oldEmail);
@@ -234,5 +245,18 @@ public class OwnersController : ControllerBase
         if (index > 0) links.previous = new {href = $"{url}?index={index - count}&count={count}"};
         if (index + count < total) links.next = new {href = $"{url}?index={index + count}&count={count}"};
         return links;
+    }
+    
+    private void PublishNewOwnerMessage(Owner owner)
+    {
+        var message = new NewOwnerMessage(owner.FirstName, owner.MiddleName, owner.LastName, owner.Email,
+            owner.Vehicle?.Registration);
+        _bus.PubSub.Publish(message);
+    }
+    
+    private void PublishNewVehicleOfOwnerMessage(string email, string newVehicle, string oldVehicle)
+    {
+        var message = new NewVehicleOfOwnerMessage(email, newVehicle, oldVehicle);
+        _bus.PubSub.Publish(message);
     }
 }
