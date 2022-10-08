@@ -54,7 +54,7 @@ public class OwnerMutation : ObjectGraphType
         
         Field<OwnerGraphType>("updateOwner",
             arguments: new QueryArguments(
-                new QueryArgument<NonNullGraphType<StringGraphType>> {Name = "oldfullname"},
+                new QueryArgument<NonNullGraphType<StringGraphType>> {Name = "oldEmail"},
                 new QueryArgument<NonNullGraphType<StringGraphType>> {Name = "firstName"},
                 new QueryArgument<NonNullGraphType<StringGraphType>> {Name = "middleName"},
                 new QueryArgument<NonNullGraphType<StringGraphType>> {Name = "lastName"},
@@ -65,7 +65,7 @@ public class OwnerMutation : ObjectGraphType
             {
                 try
                 {
-                    var oldfullname = tContext.GetArgument<string>("oldfullname");
+                    var oldEmail = tContext.GetArgument<string>("oldEmail");
                     var f_name = tContext.GetArgument<string>("firstName");
                     var m_name = tContext.GetArgument<string>("middleName");
                     var l_name = tContext.GetArgument<string>("lastName");
@@ -87,13 +87,13 @@ public class OwnerMutation : ObjectGraphType
                         }
                     }
 
-                    var ownerInContext = _context.FindOwnerByName(oldfullname);
+                    var ownerInContext = _context.FindOwnerByEmail(oldEmail);
                     if (ownerInContext == null)
                     {
                         throw new KeyNotFoundException("Владелец не найден");
                     }
 
-                    _context.UpdateOwner(newOwner, oldfullname);
+                    _context.UpdateOwner(newOwner, oldEmail);
                     return newOwner;
                 }
                 catch (Exception e)
@@ -106,15 +106,18 @@ public class OwnerMutation : ObjectGraphType
         
         Field<OwnerGraphType>("deleteOwner",
             arguments: new QueryArguments(
-                new QueryArgument<NonNullGraphType<StringGraphType>> {Name = "fullname"}
+                new QueryArgument<NonNullGraphType<StringGraphType>> {Name = "email"}
             ),
             resolve: tContext =>
             {
-                var fullname = tContext.GetArgument<string>("fullname");
-                var owner = _context.FindOwnerByName(fullname);
+                var email = tContext.GetArgument<string>("email");
+                var owner = _context.FindOwnerByEmail(email);
                 _context.DeleteOwner(owner);
                 return owner;
             }
         );
     }
 }
+
+
+

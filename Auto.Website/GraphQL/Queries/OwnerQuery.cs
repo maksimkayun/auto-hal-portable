@@ -16,20 +16,20 @@ public class OwnerQuery : ObjectGraphType
     {
         _context = context;
         Field<OwnerGraphType>("owner", "Запрос для получения данных о владельце",
-            new QueryArguments(MakeNonNullStringArgument("fullname", "Полное имя искомого владельца")),
+            new QueryArguments(MakeNonNullStringArgument("email", "Полное имя искомого владельца")),
             resolve: GetOwner);
     }
 
     private Owner GetOwner(IResolveFieldContext<object> context)
     {
-        var name = context.GetArgument<string>("fullname");
+        var email = context.GetArgument<string>("email");
         try
         {
-            return _context.FindOwnerByName(name) ?? throw new Exception();
+            return _context.FindOwnerByEmail(email);
         }
         catch (Exception e)
         {
-            context.Errors.Add(new ExecutionError("Владелец с таким именем не найден"));
+            context.Errors.Add(new ExecutionError(e.Message));
             throw;
         }
     }
@@ -42,3 +42,5 @@ public class OwnerQuery : ObjectGraphType
         };
     }
 }
+
+
