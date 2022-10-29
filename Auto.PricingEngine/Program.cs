@@ -1,3 +1,4 @@
+using Auto.PricingEngine.ServiceInterfaces;
 using Auto.PricingEngine.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddGrpc();
+builder.Services.AddSingleton<IDataRequestService, DataRequestService>();
 
 var app = builder.Build();
 

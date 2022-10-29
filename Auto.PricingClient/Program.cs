@@ -9,7 +9,7 @@ Console.WriteLine("Ready! Press any key to send a gRPC request (or Ctrl-C to qui
 while (true) {
     Console.ReadKey(true);
     var request = new PriceRequest {
-        Model = "volkwsagen-beetle",
+        Model = "audi-rs6",
         Color = "Green",
         Year = 1985
     };
