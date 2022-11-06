@@ -9,7 +9,7 @@ public class DataRequestService : IDataRequestService
 {
     private readonly HttpClient _client;
     private readonly string _baseUri = "http://localhost:5000";
-
+    
     public DataRequestService()
     {
         _client = new HttpClient(new HttpClientHandler

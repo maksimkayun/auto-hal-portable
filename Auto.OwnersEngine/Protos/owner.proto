@@ -1,0 +1,14 @@
+﻿syntax = "proto3";
+option csharp_namespace = "Auto.OwnersEngine";
+package owner;
+service OwnerService {
+  rpc GetOwnerByRegNumber (OwnerByRegNumberRequest) returns (OwnerByRegNumberResult);
+}
+message OwnerByRegNumberRequest {
+  string registerNumber = 1;
+}
+message OwnerByRegNumberResult {
+  string fullname = 1;
+  string email = 2;
+  string regCodeVehicle = 3;
+}

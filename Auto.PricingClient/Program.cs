@@ -14,5 +14,5 @@ while (true) {
         Year = 1985
     };
     var reply = grpcClient.GetPrice(request);
-    Console.WriteLine($"Price: {reply.Price}");
+    Console.WriteLine($"Price: {reply.Price}, Comment/Code: {reply.CurrencyCode}");
 }
