@@ -7,13 +7,11 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
 using Auto.Website.GraphQL.Schemas;
+using Auto.Website.Hubs;
 using EasyNetQ;
-using GraphQL;
 using GraphQL.Server;
 using GraphQL.Types;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 namespace Auto.Website {
@@ -32,6 +30,8 @@ namespace Auto.Website {
             
             services.AddSingleton<ISchema,AutoSchema>();
             services.AddGraphQL(options => { options.EnableMetrics = false; }).AddSystemTextJson();
+
+            services.AddSignalR();
             
             services.AddSwaggerGen(
                 config => {
@@ -54,9 +54,11 @@ namespace Auto.Website {
                 app.UseGraphQLAltair();
 
             } else {
+                app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            
             app.UseHttpsRedirection();
             app.UseDefaultFiles();
             app.UseStaticFiles();
@@ -65,8 +67,9 @@ namespace Auto.Website {
             app.UseSwagger();
             app.UseSwaggerUI();
             app.UseGraphQL<ISchema>();
-
+            
             app.UseEndpoints(endpoints => {
+                endpoints.MapHub<AutoHub>("/hub");
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");

@@ -17,13 +17,9 @@ namespace Auto.Website {
                     logging.AddConsole();
                 })
                 .ConfigureWebHostDefaults(webBuilder => {
-                    webBuilder.ConfigureKestrel(options => {
-                        options.ListenAnyIP(5000, listenOptions => listenOptions.Protocols = HttpProtocols.Http1AndHttp2);
-                        options.AllowSynchronousIO = true;
-                    });
-                    webBuilder.UseStartup<Startup>();
-                }
-            );
+                        webBuilder.UseStartup<Startup>();
+                    }
+                );
         
     }
 }

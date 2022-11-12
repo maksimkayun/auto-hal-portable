@@ -16,14 +16,27 @@
 		<PackageReference Include="GraphQL.Server.Ui.Altair" Version="5.0.0" />
 		<PackageReference Include="GraphQL.SystemTextJson" Version="4.6.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="7.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
 		<PackageReference Include="newtonsoft.json" Version="13.0.1" />
 		<PackageReference Include="RequestResponseLoggingMiddleware" Version="1.0.0" />		
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Auto.Data\Auto.Data.csproj" />
 		<ProjectReference Include="..\Auto.Messages\Auto.Messages.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AdditionalFiles Include="Views\Home\Index.cshtml" />
+	  <AdditionalFiles Include="Views\Home\Privacy.cshtml" />
+	  <AdditionalFiles Include="Views\Shared\Error.cshtml" />
+	  <AdditionalFiles Include="Views\Shared\_Layout.cshtml" />
+	  <AdditionalFiles Include="Views\Shared\_ValidationScriptsPartial.cshtml" />
+	  <AdditionalFiles Include="Views\_ViewImports.cshtml" />
+	  <AdditionalFiles Include="Views\_ViewStart.cshtml" />
 	</ItemGroup>
 </Project>
