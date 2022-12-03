@@ -16,17 +16,16 @@ public static class Program
         await hub.StartAsync();
         Console.WriteLine("Hub started!");
         Console.WriteLine("Press any key to send a message (Ctrl-C to quit)");
-        var i = 0;
         while (true)
         {
             var input = Console.ReadLine();
-            var message = JsonConvert.SerializeObject(new Vehicle
+            var message = JsonConvert.SerializeObject(new Owner
             {
-                Registration = "BEL664H",
-                ModelCode = "TestModel",
-                Color = "TestColor",
-                Year = 10,
-                VehicleModel = null
+                FirstName = "TestFirName",
+                MiddleName = "TestMidName",
+                LastName = "TestLastName",
+                Email = "test@email.ru",
+                Vehicle = null
             });
             await hub.SendAsync("NotifyWebUsers", "Auto.Notifier", message);
             Console.WriteLine($"Sent: {message}");
