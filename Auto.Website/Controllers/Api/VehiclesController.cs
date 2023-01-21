@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
+﻿using Auto.Data;
 using System.Linq;
-using System.Threading.Tasks;
-using Auto.Data;
+using System.Dynamic;
 using Auto.Data.Entities;
-using Auto.Messages;
 using Auto.Website.Models;
-using Auto.Website.Services.PublishServices.Interfaces;
-using Castle.Core.Internal;
-using EasyNetQ;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-
+using Auto.Website.Services.PublishServices.Interfaces;
 
 namespace Auto.Website.Controllers.Api
 {
@@ -27,7 +21,7 @@ namespace Auto.Website.Controllers.Api
             this.db = db;
             _publisher = publisher;
         }
-        
+
         private dynamic Paginate(string url, int index, int count, int total)
         {
             dynamic links = new ExpandoObject();
@@ -94,28 +88,28 @@ namespace Auto.Website.Controllers.Api
                 VehicleModel = vehicleModel
             };
             db.CreateVehicle(vehicle);
-            
-            _publisher.PublishNewVehicleMessage(vehicle.Registration);
+
+            _publisher.PublishNewVehicleMessage(vehicle.Registration, vehicle);
 
             return Ok(dto);
         }
 
         // PUT api/vehicles/ABC123
-        [HttpPost("update/{id}")]
-        public IActionResult Put(string id, [FromBody] dynamic dto)
+        [HttpPost("update/{oldRegNumber}")]
+        public IActionResult Put(string oldRegNumber, [FromBody] VehicleDto dto)
         {
-            var vehicleModelHref = dto._links.vehicleModel.href;
-            var vehicleModelId = ModelsController.ParseModelId(vehicleModelHref);
-            var vehicleModel = db.FindModel(vehicleModelId);
+            var vehicleModel = db.FindModel(dto.ModelCode);
             var vehicle = new Vehicle
             {
-                Registration = id,
-                Color = dto.color,
-                Year = dto.year,
-                ModelCode = vehicleModel.Code
+                Registration = dto.Registration,
+                Color = dto.Color,
+                Year = dto.Year,
+                ModelCode = vehicleModel.Code,
+                VehicleModel = vehicleModel
             };
             db.UpdateVehicle(vehicle);
-            return Get(id);
+            _publisher.PublishUpdateVehicleMessage(oldRegNumber, vehicle);
+            return Get(dto.Registration);
         }
 
         // DELETE api/vehicles/ABC123
@@ -125,11 +119,11 @@ namespace Auto.Website.Controllers.Api
             var vehicle = db.FindVehicle(id);
             if (vehicle == default) return NotFound();
             db.DeleteVehicle(vehicle);
+            _publisher.PublishDeleteVehicleMessage(vehicle.Registration);
             return NoContent();
         }
 
-        private dynamic
-            GetResource(Vehicle vehicle)
+        private dynamic GetResource(Vehicle vehicle)
         {
             var pathVehicle = "/api/vehicles/";
             var pathModel = "/api/modes/";

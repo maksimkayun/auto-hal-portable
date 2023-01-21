@@ -49,7 +49,6 @@ public class ProcessHelper
         bus.PubSub.Subscribe<NewVehicleMessage>(SUBSCRIBER_ID, ProcessingNewVehicleMessage);
         bus.PubSub.Subscribe<UpdateVehicleMessage>(SUBSCRIBER_ID, ProcessingUpdateVehicleMessage);
         bus.PubSub.Subscribe<DeleteVehicleMessage>(SUBSCRIBER_ID, ProcessingDeleteVehicleMessage);
-        
     }
 
     private void ProcessingDeleteVehicleMessage(DeleteVehicleMessage obj)

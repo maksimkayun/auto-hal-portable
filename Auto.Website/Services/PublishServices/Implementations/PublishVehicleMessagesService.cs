@@ -1,4 +1,6 @@
-﻿using Auto.Messages;
+﻿using Auto.Data.Entities;
+using Auto.Messages;
+using Auto.Messages.UpdateContextMessages.Vehicle;
 using Auto.Website.Services.PublishServices.Interfaces;
 using EasyNetQ;
 
@@ -15,9 +17,39 @@ public class PublishVehicleMessagesService : IVehicleEventPublisher
 
     public void PublishMessage<T>(T message) => _bus.PubSub.PublishAsync(message);
 
-    public void PublishNewVehicleMessage(string regNumber)
+    public void PublishNewVehicleMessage(string regNumber, Vehicle vehicle)
     {
-        var message = new NewVehicleMessage(regNumber);
+        var message = new NewVehicleMessage
+        {
+            Registration = vehicle.Registration,
+            ModelCode = vehicle.ModelCode,
+            Color = vehicle.Color,
+            Year = vehicle.Year,
+            VehicleModel = vehicle.VehicleModel.Name
+        };
+        PublishMessage(message);
+    }
+
+    public void PublishUpdateVehicleMessage(string oldRegNumber, Vehicle vehicle)
+    {
+        var message = new UpdateVehicleMessage
+        {
+            Registration = vehicle.Registration,
+            ModelCode = vehicle.ModelCode,
+            Color = vehicle.Color,
+            Year = vehicle.Year,
+            VehicleModel = vehicle.VehicleModel.Name,
+            OldRegNumber = oldRegNumber
+        };
+        PublishMessage(message);
+    }
+
+    public void PublishDeleteVehicleMessage(string regNumber)
+    {
+        var message = new DeleteVehicleMessage
+        {
+            RegistrationCode = regNumber
+        };
         PublishMessage(message);
     }
 }

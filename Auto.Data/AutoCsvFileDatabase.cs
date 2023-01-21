@@ -137,31 +137,26 @@ namespace Auto.Data
 
         public IEnumerable<Vehicle> ListVehicles()
         {
-            ReadVehiclesFromCsvFile("vehicles.csv");
             return vehicles.Values;
         }
 
         public IEnumerable<Manufacturer> ListManufacturers()
         {
-            ReadVehiclesFromCsvFile("manufacturers.csv");
             return manufacturers.Values;
         }
 
         public IEnumerable<Model> ListModels()
         {
-            ReadVehiclesFromCsvFile("models.csv");
             return models.Values;
         }
 
         public IEnumerable<Owner> ListOwners()
         {
-            ReadOwnersFromCsvFile("owners.csv");
             return owners.Values;
         }
 
         public Vehicle FindVehicle(string registration)
         {
-            ReadVehiclesFromCsvFile("vehicles.csv");
             var vehicle = vehicles.FirstOrDefault(e => e.Key == registration).Value;
             if (vehicle == default)
             {
@@ -173,26 +168,22 @@ namespace Auto.Data
 
         public Model FindModel(string code)
         {
-            ReadModelsFromCsvFile("models.csv");
             return models.GetValueOrDefault(code);
         }
 
         public Manufacturer FindManufacturer(string code)
         {
-            ReadVehiclesFromCsvFile("manufacturers.csv");
             return manufacturers.GetValueOrDefault(code);
         }
 
         public Owner FindOwnerByName(string fullName)
         {
-            ReadOwnersFromCsvFile("owners.csv");
             return owners.FirstOrDefault(e => (e.Value as Owner).GetFullName == fullName).Value;
         }
 
 
         public Owner FindOwnerByEmail(string email)
         {
-            ReadOwnersFromCsvFile("owners.csv");
             return owners.FirstOrDefault(e => e.Key == email).Value;
         }
 
@@ -223,7 +214,7 @@ namespace Auto.Data
 
         public void UpdateOwner(Owner owner, string oldKey)
         {
-            owners[owner.Email] = owner;
+            owners.TryAdd(owner.Email, owner);
             if (oldKey != owner.Email)
             {
                 owners.Remove(oldKey);

@@ -3,7 +3,7 @@ function displayNotification(user, json) {
     console.log(json);
     var $target = $('div#signalr-notifications');
     var data = JSON.parse(json);
-    var message = `NEW OWNER! <a href="/api/owners/${data.Emal}">${data.FirstName}</a>${data.MiddleName}, ${data.LastName}, ${data.Email}`;
+    var message = `OWNER <a href="/api/owners/${data.Email}">${data.Email}</a> CHANGED HIS VEHICLE ! OLD:${data.OldVehicle}, NEW:${data.LastName}`;
     var $div = $(`<div>${message}</div>`);
     $target.prepend($div);
     window.setTimeout(function () { $div.fadeOut(2000, function () { $div.remove(); }); }, 8000);
