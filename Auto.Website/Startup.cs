@@ -9,6 +9,8 @@ using System.IO;
 using System.Reflection;
 using Auto.Website.GraphQL.Schemas;
 using Auto.Website.Hubs;
+using Auto.Website.Services.PublishServices.Implementations;
+using Auto.Website.Services.PublishServices.Interfaces;
 using EasyNetQ;
 using GraphQL.Server;
 using GraphQL.Types;
@@ -27,6 +29,8 @@ namespace Auto.Website {
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllersWithViews().AddNewtonsoftJson();
             services.AddSingleton<IAutoDatabase, AutoCsvFileDatabase>();
+            services.AddSingleton<IOwnerEventPublisher, PublishOwnerMessagesService>();
+            services.AddSingleton<IVehicleEventPublisher, PublishVehicleMessagesService>();
             
             services.AddSingleton<ISchema,AutoSchema>();
             services.AddGraphQL(options => { options.EnableMetrics = false; }).AddSystemTextJson();

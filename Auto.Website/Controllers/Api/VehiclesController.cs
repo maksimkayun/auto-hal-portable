@@ -5,8 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Auto.Data;
 using Auto.Data.Entities;
+using Auto.Messages;
 using Auto.Website.Models;
 using Castle.Core.Internal;
+using EasyNetQ;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -17,10 +19,12 @@ namespace Auto.Website.Controllers.Api
     public class VehiclesController : ControllerBase
     {
         private readonly IAutoDatabase db;
+        private readonly IBus _bus;
 
-        public VehiclesController(IAutoDatabase db)
+        public VehiclesController(IAutoDatabase db, IBus bus)
         {
             this.db = db;
+            _bus = bus;
         }
 
         private dynamic Paginate(string url, int index, int count, int total)
