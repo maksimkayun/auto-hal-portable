@@ -9,4 +9,8 @@ public class UpdateOwnerMessage : NewOwnerMessage
     {
         OldEmail = oldEmail;
     }
+
+    public UpdateOwnerMessage()
+    {
+    }
 }

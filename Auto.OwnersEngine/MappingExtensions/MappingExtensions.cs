@@ -16,7 +16,10 @@ public static class MappingExtensions
             };
         }
 
-        return null;
+        return new OwnerByRegNumberResult
+        {
+            Error = "Владелец не найден"
+        };
     }
 
     public static VehicleByOwnerEmailResult? ToVehicleByOwnerEmailResult(this Vehicle? vehicle)

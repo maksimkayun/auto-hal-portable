@@ -20,13 +20,15 @@ message OwnerByRegNumberResult {
   string fullname = 1;
   string email = 2;
   string regCodeVehicle = 3;
+  string error = 4;
 }
 message OwnerByEmailResult {
   string firstName = 1;
   string middleName = 2;
   string lastName = 3;
   string email = 4;
-  string  regCodeVehicle = 5;
+  string regCodeVehicle = 5;
+  string error = 6;
 }
 message VehicleByOwnerEmailResult {
   string model = 1;

@@ -126,6 +126,7 @@ public class OwnersController : ControllerBase
     {
         var owner = _context.FindOwnerByEmail(email);
         _context.DeleteOwner(owner);
+        _publisher.PublishDeleteOwnerMessage(email);
         return Ok(owner);
     }
 
@@ -170,6 +171,7 @@ public class OwnersController : ControllerBase
             ownerInContext.Vehicle = vehicle;
 
             _context.UpdateOwner(ownerInContext, oldEmail);
+            _publisher.PublishUpdateOwnerMessage(oldEmail, ownerInContext);
 
             return await GetByEmail(ownerInContext.Email);
         }
