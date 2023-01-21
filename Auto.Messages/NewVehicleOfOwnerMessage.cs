@@ -2,7 +2,7 @@
 
 public class NewVehicleOfOwnerMessage
 {
-    public NewVehicleOfOwnerMessage(string email, string? newVehicle, string? oldVehicle)
+    public NewVehicleOfOwnerMessage(string email, string? newVehicle, string? oldVehicle = null)
     {
         Email = email;
         NewVehicle = newVehicle;

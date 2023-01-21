@@ -15,9 +15,9 @@ public class PublishVehicleMessagesService : IVehicleEventPublisher
 
     public void PublishMessage<T>(T message) => _bus.PubSub.PublishAsync(message);
 
-    public void PublishNewVehicleMessage(string regNumber, string ownerEmail)
+    public void PublishNewVehicleMessage(string regNumber)
     {
-        var message = new NewVehicleMessage(regNumber, ownerEmail);
+        var message = new NewVehicleMessage(regNumber);
         PublishMessage(message);
     }
 }

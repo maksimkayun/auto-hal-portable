@@ -18,4 +18,10 @@ public class OwnerService : OwnersEngine.OwnerService.OwnerServiceBase
     {
         return Task.FromResult(_service.GetOwnerByRegNumber(request.RegisterNumber).ToOwnerByRegNumberResult());
     }
+
+    public override Task<VehicleByOwnerEmailResult?> GetVehicleByOwnerEmail(VehicleByOwnerEmailRequest request,
+        ServerCallContext context)
+    {
+        return Task.FromResult(_service.GetVehicleByOwnerEmail(request.Email).ToVehicleByOwnerEmailResult());
+    }
 }

@@ -18,4 +18,24 @@ public static class MappingExtensions
 
         return null;
     }
+
+    public static VehicleByOwnerEmailResult? ToVehicleByOwnerEmailResult(this Vehicle? vehicle)
+    {
+        if (vehicle != null)
+        {
+            return new VehicleByOwnerEmailResult
+            {
+                Model = vehicle.VehicleModel.Name,
+                ModelCode = vehicle.ModelCode,
+                Registration = vehicle.Registration,
+                Year = vehicle.Year.ToString(),
+                Color = vehicle.Color
+            };
+        }
+
+        return new VehicleByOwnerEmailResult()
+        {
+            Error = "ТС, зарегистрированное за владельцем не найдено"
+        };
+    }
 }

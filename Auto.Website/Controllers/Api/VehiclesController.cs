@@ -7,6 +7,7 @@ using Auto.Data;
 using Auto.Data.Entities;
 using Auto.Messages;
 using Auto.Website.Models;
+using Auto.Website.Services.PublishServices.Interfaces;
 using Castle.Core.Internal;
 using EasyNetQ;
 using Microsoft.AspNetCore.Mvc;
@@ -19,14 +20,14 @@ namespace Auto.Website.Controllers.Api
     public class VehiclesController : ControllerBase
     {
         private readonly IAutoDatabase db;
-        private readonly IBus _bus;
+        private readonly IVehicleEventPublisher _publisher;
 
-        public VehiclesController(IAutoDatabase db, IBus bus)
+        public VehiclesController(IAutoDatabase db, IVehicleEventPublisher publisher)
         {
             this.db = db;
-            _bus = bus;
+            _publisher = publisher;
         }
-
+        
         private dynamic Paginate(string url, int index, int count, int total)
         {
             dynamic links = new ExpandoObject();
@@ -93,6 +94,8 @@ namespace Auto.Website.Controllers.Api
                 VehicleModel = vehicleModel
             };
             db.CreateVehicle(vehicle);
+            
+            _publisher.PublishNewVehicleMessage(vehicle.Registration);
 
             return Ok(dto);
         }

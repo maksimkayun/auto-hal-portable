@@ -3,12 +3,36 @@ option csharp_namespace = "Auto.OwnersEngine";
 package owner;
 service OwnerService {
   rpc GetOwnerByRegNumber (OwnerByRegNumberRequest) returns (OwnerByRegNumberResult);
+  rpc GetOwnerByEmail (OwnerByEmailRequest) returns (OwnerByEmailResult);
+  rpc GetVehicleByOwnerEmail (VehicleByOwnerEmailRequest) returns (VehicleByOwnerEmailResult);
 }
 message OwnerByRegNumberRequest {
   string registerNumber = 1;
 }
+message OwnerByEmailRequest {
+  string email = 1;
+}
+message VehicleByOwnerEmailRequest {
+  string email = 1;
+}
+
 message OwnerByRegNumberResult {
   string fullname = 1;
   string email = 2;
   string regCodeVehicle = 3;
+}
+message OwnerByEmailResult {
+  string firstName = 1;
+  string middleName = 2;
+  string lastName = 3;
+  string email = 4;
+  string  regCodeVehicle = 5;
+}
+message VehicleByOwnerEmailResult {
+  string model = 1;
+  string modelCode = 2;
+  string registration = 3;
+  string year = 4;
+  string color = 5;
+  string error = 6;
 }

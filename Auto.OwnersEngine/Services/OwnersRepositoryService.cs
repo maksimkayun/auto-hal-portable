@@ -12,8 +12,16 @@ public class OwnersRepositoryService : IOwnersRepositoryService
     {
         _context = context;
     }
+
     public Owner? GetOwnerByRegNumber(string regNumber)
     {
-        return _context.ListOwners().SingleOrDefault(o => o.Vehicle != null && o.Vehicle.Registration.Equals(regNumber));
+        return _context.ListOwners()
+            .SingleOrDefault(o => o.Vehicle != null && o.Vehicle.Registration.Equals(regNumber));
     }
+
+    public Vehicle? GetVehicleByOwnerEmail(string email) =>
+        _context.ListOwners()
+            .Where(e => e.Vehicle != null)
+            .SingleOrDefault(e => e.Email == email)
+            ?.Vehicle;
 }

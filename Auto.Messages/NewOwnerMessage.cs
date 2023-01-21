@@ -11,7 +11,6 @@ public class NewOwnerMessage
         MiddleName = middleName;
         LastName = lastName;
         Email = email;
-        RegCodeVehicle = regCodeVehicle;
         CreatedAt = DateTimeOffset.Now;
     }
     public string FirstName { get; set; }
@@ -19,8 +18,6 @@ public class NewOwnerMessage
     public string LastName { get; set; }
     
     public string Email { get; set; }
-    
-    public string? RegCodeVehicle { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
 }

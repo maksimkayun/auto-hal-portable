@@ -4,22 +4,17 @@ namespace Auto.Messages;
 
 public class NewVehicleMessage
 {
-    private string _registration;
+    private string registration;
 
-    public NewVehicleMessage(string registration, string ownerEmail)
+    public NewVehicleMessage(string regNumber)
     {
-        Registration = registration;
-        OwnerEmail = ownerEmail;
+        Registration = regNumber;
     }
 
     public string Registration
     {
-        get => NormalizeRegistration(_registration);
-        set => _registration = value;
+        get => NormalizeRegistration(registration);
+        set => registration = value;
     }
-
-    private static string NormalizeRegistration(string reg) => 
-        Regex.Replace(reg.ToUpperInvariant(), "[^A-Z0-9]", "");
-
-    public string OwnerEmail { get; set; }
+    private static string NormalizeRegistration(string reg) => Regex.Replace(reg.ToUpperInvariant(), "[^A-Z0-9]", "");
 }

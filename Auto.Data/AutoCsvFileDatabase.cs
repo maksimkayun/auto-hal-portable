@@ -1,10 +1,14 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Auto.Data.Entities;
+using CsvHelper;
 using static System.Int32;
 
 namespace Auto.Data
@@ -29,8 +33,28 @@ namespace Auto.Data
             ReadVehiclesFromCsvFile("vehicles.csv");
             ReadOwnersFromCsvFile("owners.csv");
             ResolveReferences();
+            Thread threadSyncData = new Thread(SyncAllData);
+            threadSyncData.Start();
         }
 
+        private void SyncAllData()
+        {
+            // 0,75 мин
+            Thread.Sleep(45000);
+            
+            UpdateFile("manufacturers.csv", manufacturers.Values);
+            UpdateFile("vehicles.csv", vehicles.Values);
+            UpdateFile("models.csv", models.Values);
+            UpdateFile("owners.csv", owners.Values);
+        }
+
+        public void UpdateFile<T>(string fileName, T records)
+        {
+            using var writer = new StreamWriter(ResolveCsvFilePath(fileName));
+            using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+            csv.WriteRecords(records as IEnumerable);
+        }
+        
         private void ReadOwnersFromCsvFile(string filename)
         {
             var filePath = ResolveCsvFilePath(filename);
@@ -64,9 +88,20 @@ namespace Auto.Data
 
         private string ResolveCsvFilePath(string filename)
         {
-            var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var directory = RoutePath(Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location));
             var csvFilePath = Path.Combine(directory, "csv-data");
             return Path.Combine(csvFilePath, filename);
+        }
+
+        private string RoutePath(string originalString)
+        {
+            string targetString = "Auto.Website";
+
+            int startIndex = originalString.IndexOf("Auto.");
+            int endIndex = originalString.IndexOf("\\", startIndex + 5);
+
+            string modifiedString = originalString.Remove(startIndex, endIndex - startIndex).Insert(startIndex, targetString);
+            return modifiedString;
         }
 
         private void ReadVehiclesFromCsvFile(string filename)
@@ -126,16 +161,33 @@ namespace Auto.Data
         public int CountVehicles() => vehicles.Count;
         public int CountOwners() => owners.Count;
 
-        public IEnumerable<Vehicle> ListVehicles() => vehicles.Values;
+        public IEnumerable<Vehicle> ListVehicles()
+        {
+            ReadVehiclesFromCsvFile("vehicles.csv");
+            return vehicles.Values;
+        }
 
-        public IEnumerable<Manufacturer> ListManufacturers() => manufacturers.Values;
+        public IEnumerable<Manufacturer> ListManufacturers()
+        {
+            ReadVehiclesFromCsvFile("manufacturers.csv");
+            return manufacturers.Values;
+        }
 
-        public IEnumerable<Model> ListModels() => models.Values;
+        public IEnumerable<Model> ListModels()
+        {
+            ReadVehiclesFromCsvFile("models.csv");
+            return models.Values;
+        }
 
-        public IEnumerable<Owner> ListOwners() => owners.Values;
+        public IEnumerable<Owner> ListOwners()
+        {
+            ReadOwnersFromCsvFile("owners.csv");
+            return owners.Values;
+        }
 
         public Vehicle FindVehicle(string registration)
         {
+            ReadVehiclesFromCsvFile("vehicles.csv");
             var vehicle = vehicles.FirstOrDefault(e => e.Key == registration).Value;
             if (vehicle == default)
             {
@@ -145,15 +197,31 @@ namespace Auto.Data
             return vehicle;
         } 
 
-        public Model FindModel(string code) => models.GetValueOrDefault(code);
+        public Model FindModel(string code)
+        {
+            ReadModelsFromCsvFile("models.csv");
+            return models.GetValueOrDefault(code);
+        }
 
-        public Manufacturer FindManufacturer(string code) => manufacturers.GetValueOrDefault(code);
+        public Manufacturer FindManufacturer(string code)
+        {
+            ReadVehiclesFromCsvFile("manufacturers.csv");
+            return manufacturers.GetValueOrDefault(code);
+        }
 
-        public Owner FindOwnerByName(string fullName) =>
-            owners.FirstOrDefault(e => (e.Value as Owner).GetFullName == fullName).Value;
+        public Owner FindOwnerByName(string fullName)
+        {
+            ReadOwnersFromCsvFile("owners.csv");
+            return owners.FirstOrDefault(e => (e.Value as Owner).GetFullName == fullName).Value;
+        }
 
-        public Owner FindOwnerByEmail(string email) => 
-            owners.FirstOrDefault(e => e.Key == email).Value;
+
+        public Owner FindOwnerByEmail(string email)
+        {
+            ReadOwnersFromCsvFile("owners.csv");
+            return owners.FirstOrDefault(e => e.Key == email).Value;
+        }
+            
 
         public void CreateVehicle(Vehicle vehicle)
         {
@@ -165,6 +233,7 @@ namespace Auto.Data
         public void UpdateVehicle(Vehicle vehicle)
         {
             vehicles[vehicle.Registration] = vehicle;
+            UpdateFile("vehicles.csv", vehicles.Values);
         }
 
         public void DeleteVehicle(Vehicle vehicle)
@@ -172,11 +241,13 @@ namespace Auto.Data
             var model = FindModel(vehicle.ModelCode);
             model.Vehicles.Remove(vehicle);
             vehicles.Remove(vehicle.Registration);
+            UpdateFile("vehicles.csv", vehicles.Values);
         }
 
         public void CreateOwner(Owner owner)
         {
             owners.Add(owner.Email, owner);
+            UpdateFile("owners.csv", owners.Values);
         }
 
         public void UpdateOwner(Owner owner, string oldKey)
@@ -186,11 +257,13 @@ namespace Auto.Data
             {
                 owners.Remove(oldKey);
             }
+            UpdateFile("owners.csv", owners.Values);
         }
 
         public void DeleteOwner(Owner owner)
         {
             owners.Remove(owner.Email);
+            UpdateFile("owners.csv", owners.Values);
         }
     }
 }
