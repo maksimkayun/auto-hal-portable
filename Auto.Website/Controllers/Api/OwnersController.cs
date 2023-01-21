@@ -192,8 +192,18 @@ public class OwnersController : ControllerBase
         };
 
         newOwner.Vehicle = vehicle;
-
+        var oldOwners = _context.ListOwners()
+            .Where(e => e.Vehicle != null)
+            .Where(e=> e.Vehicle?.Registration == vehicle.Registration && e.Email != newOwner.Email)
+            .ToList();
+        
         _context.CreateOwner(newOwner);
+        foreach (var oldOwner in oldOwners)
+        {
+            oldOwner.Vehicle = null;
+            _context.UpdateOwner(oldOwner, oldOwner.Email);
+        }
+        
         return newOwner;
     }
 
