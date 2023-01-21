@@ -1,6 +1,8 @@
 using Auto.Data;
+using Auto.OwnersEngine;
 using Auto.OwnersEngine.Interfaces;
 using Auto.OwnersEngine.Services;
+using OwnerService = Auto.OwnersEngine.Services.OwnerService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddGrpc();
-builder.Services.AddSingleton<IAutoDatabase, AutoCsvFileDatabase>();
+
+var context = new AutoCsvFileDatabase(LoggerHelper.GetConsoleLogger());
+builder.Services.AddSingleton<IAutoDatabase>(context);
 builder.Services.AddSingleton<IOwnersRepositoryService, OwnersRepositoryService>();
 
 var app = builder.Build();
@@ -21,3 +25,4 @@ app.MapGet("/",
         "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
 app.Run();
+

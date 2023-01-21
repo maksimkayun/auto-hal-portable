@@ -28,6 +28,11 @@ public static class Program
         try
         {
             var reply = grpcClient.GetVehicleByOwnerEmail(request);
+            if (!string.IsNullOrEmpty(reply.Error))
+            {
+                Thread.Sleep(1500);
+                reply = grpcClient.GetVehicleByOwnerEmail(request);
+            }
             Console.WriteLine(
                 $"Ответ получен! ТС {reply.Model}, регистрационный номер {reply.Registration}\n");
 
