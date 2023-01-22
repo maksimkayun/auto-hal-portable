@@ -22,7 +22,7 @@
             <CompileOutputs>True</CompileOutputs>
             <OutputDir>obj\Debug\net6.0\</OutputDir>
             <Generator>MSBuild:Compile</Generator>
-            <Link>Protos\price.proto</Link>
+            <Link>Protos\owner.proto</Link>
         </Protobuf>
     </ItemGroup>
     <ItemGroup>

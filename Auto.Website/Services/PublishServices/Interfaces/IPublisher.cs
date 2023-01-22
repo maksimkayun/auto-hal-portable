@@ -2,6 +2,5 @@
 
 public interface IPublisher
 {
-    
     public void PublishMessage<T>(T message);
 }
