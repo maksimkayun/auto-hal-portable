@@ -214,10 +214,14 @@ namespace Auto.Data
 
         public void UpdateOwner(Owner owner, string oldKey)
         {
-            owners.TryAdd(owner.Email, owner);
             if (oldKey != owner.Email)
             {
+                owners.TryAdd(owner.Email, owner);
                 owners.Remove(oldKey);
+            }
+            else
+            {
+                owners[owner.Email] = owner;
             }
         }
 
